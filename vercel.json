@@ -1,0 +1,17 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "functions": {
+    "app/api/upload/route.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    },
+    "app/(client)/review/actions.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
+} 

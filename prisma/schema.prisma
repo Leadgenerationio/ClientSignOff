@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  AGENCY
+  CLIENT
+}
+
+enum AdType {
+  SOCIAL_MEDIA
+  SEARCH
+  NATIVE
+  YOUTUBE
+}
+
+enum Status {
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role
+  clientId      String?
+  client        Client?    @relation(fields: [clientId], references: [id])
+  creatives     Creative[]
+  approvals     Approval[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([clientId])
+}
+
+model Client {
+  id        String     @id @default(cuid())
+  name      String
+  users     User[]
+  creatives Creative[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Creative {
+  id          String     @id @default(cuid())
+  url         String
+  adType      AdType
+  clientId    String
+  client      Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  uploadedBy  User       @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+  uploadedById String
+  approvals   Approval[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([clientId])
+  @@index([uploadedById])
+}
+
+model Approval {
+  id         String   @id @default(cuid())
+  status     Status
+  feedback   String?
+  ipAddress  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  creative   Creative @relation(fields: [creativeId], references: [id], onDelete: Cascade)
+  creativeId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([creativeId])
+} 
